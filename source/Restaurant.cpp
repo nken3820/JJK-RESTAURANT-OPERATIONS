@@ -86,6 +86,25 @@ public:
 		return result;
 	}
 
+	int find_max()
+	{
+		int max = abs(firstQueue->energy);
+		customer *indexCus = firstQueue;
+		customer *result = firstQueue;
+		int index = 0;
+		while (index < counterQueue)
+		{
+			if (abs(indexCus->energy) > max)
+			{
+				result = indexCus;
+				max = abs(indexCus->energy);
+			}
+			indexCus = indexCus->next;
+			index++;
+		}
+		return index;
+	}
+
 	bool checkname(customer *cus)
 	{
 		customer *a = first;
@@ -293,7 +312,7 @@ public:
 
 	void PURPLE()
 	{
-		cout << "purple" << endl;
+		int index = find_max();
 	}
 	void REVERSAL()
 	{
