@@ -92,17 +92,84 @@ public:
 		customer *indexCus = firstQueue;
 		customer *result = firstQueue;
 		int index = 0;
-		while (index < counterQueue)
+		while (index < counterQueue && indexCus != nullptr)
 		{
 			if (abs(indexCus->energy) > max)
 			{
 				result = indexCus;
 				max = abs(indexCus->energy);
 			}
-			indexCus = indexCus->next;
 			index++;
+			indexCus = indexCus->next;
 		}
-		return index;
+
+		customer *checkcus = firstQueue;
+		int index2 = 1;
+
+		while (result->energy != checkcus->energy && result->name != checkcus->name)
+		{
+			index2++;
+			checkcus = checkcus->next;
+		}
+		return index2;
+	}
+
+	int shellSort(int n)
+	{
+		int nswap = 0;
+
+		for (int gap = n / 2; gap > 0; gap /= 2)
+		{
+			for (int i = gap; i < n; i += 1)
+			{
+				customer *temp1 = movecus(i);
+				int j = i;
+				customer *temp2 = movecus(j);
+				customer *temp3 = movecus(j - gap);
+				for (j; j >= gap && temp3->energy > temp1->energy; j -= gap)
+				{
+					int entemp = temp2->energy;
+					string strtemp = temp2->name;
+
+					temp2->energy = temp3->energy;
+					temp2->name = temp3->name;
+
+					temp3->energy = entemp;
+					temp3->name = strtemp;
+
+					nswap++;
+
+					temp2 = movecus(j);
+					temp3 = movecus(j - gap);
+				}
+
+				int entemp = temp2->energy;
+				string strtemp = temp2->name;
+
+				temp2->energy = temp1->energy;
+				temp2->name = temp1->name;
+
+				temp1->energy = entemp;
+				temp1->name = strtemp;
+
+				nswap++;
+			}
+		}
+		return nswap;
+	}
+
+	customer *movecus(int n)
+	{
+		int i = 0;
+		customer *result = nullptr;
+		customer *index = firstQueue;
+		while (i < n && index->next != nullptr)
+		{
+			i++;
+			index = index->next;
+		}
+		result = index;
+		return result;
 	}
 
 	bool checkname(customer *cus)
@@ -263,57 +330,83 @@ public:
 
 	void RED(string name, int energy)
 	{
-		cout << name << " " << energy << endl;
+		// cout << name << " " << energy << endl;
 		customer *cus = new customer(name, energy, nullptr, nullptr);
 		logicRED(cus);
 	}
 
 	void BLUE(int num)
 	{
-		if (num >= counter)
+		if (counter > 0)
 		{
-			const int index = counterQueue;
-			first = nullptr;
-			counter = 0;
-			if (counterQueue <= MAXSIZE)
+			if (num >= counter)
 			{
-				for (int i = 0; i < index; i++)
+				const int index = counterQueue;
+				first = nullptr;
+				counter = 0;
+				if (counterQueue <= MAXSIZE)
+				{
+					for (int i = 0; i < index; i++)
+					{
+						customer *templ = removeFirstQueue();
+						logicRED(templ);
+					}
+				}
+			}
+			else if (num < counter && counterQueue > 0)
+			{
+				const int index2 = counter;
+				for (int i = 0; i < num; i++)
+				{
+					customer *del = removeFirstHistory();
+					counter--;
+					delete del;
+				}
+				first = nullptr;
+				counter = 0;
+				copyHis = copylist(firstHistory, index2 - num);
+				firstHistory = nullptr;
+				for (int j = 0; j < index2 - num; j++)
+				{
+					customer *templ = removeCOPYFirstHistory();
+					logicRED(templ);
+				}
+				int inputCus_countineu = min(num, counterQueue);
+				for (int k = 0; k < inputCus_countineu; k++)
 				{
 					customer *templ = removeFirstQueue();
 					logicRED(templ);
 				}
 			}
-		}
-		else
-		{
-			const int index2 = counter;
-			for (int i = 0; i < num; i++)
+			else
 			{
-				customer *del = removeFirstHistory();
-				counter--;
-				delete del;
-			}
-			first = nullptr;
-			counter = 0;
-			copyHis = copylist(firstHistory, index2 - num);
-			firstHistory = nullptr;
-			for (int j = 0; j < index2 - num; j++)
-			{
-				customer *templ = removeCOPYFirstHistory();
-				logicRED(templ);
-			}
-			for (int k = 0; k < num; k++)
-			{
-				customer *templ = removeFirstQueue();
-				logicRED(templ);
+				const int index2 = counter;
+				for (int i = 0; i < num; i++)
+				{
+					customer *del = removeFirstHistory();
+					counter--;
+					delete del;
+				}
+				first = nullptr;
+				counter = 0;
+				copyHis = copylist(firstHistory, index2 - num);
+				firstHistory = nullptr;
+				for (int j = 0; j < index2 - num; j++)
+				{
+					customer *templ = removeCOPYFirstHistory();
+					logicRED(templ);
+				}
 			}
 		}
 	}
 
 	void PURPLE()
 	{
-		int index = find_max();
+		cout << "PURPLE" << endl;
+		// int index = find_max();
+		// shellSort(3);
 	}
+
 	void REVERSAL()
 	{
 		cout << "reversal" << endl;
@@ -361,3 +454,21 @@ public:
 		}
 	}
 };
+
+// template <typename E, typename Comp>
+// void inssort2(E A[], int n, int incr)
+// {
+// 	for (int i = incr; i < n; i += incr)
+// 		for (int j = i; (j >= incr) &&
+// 						(Comp::prior(A[j], A[j - incr]));
+// 			 j -= incr)
+// 			swap(A, j, j - incr);
+// }
+// template <typename E, typename Comp>
+// void shellsort(E A[], int n)
+// {									   // Shellsort
+// 	for (int i = n / 2; i > 2; i /= 2) // For each increment
+// 		for (int j = 0; j < i; j++)	   // Sort each sublist
+// 			inssort2<E, Comp>(&A[j], n - j, i);
+// 	inssort2<E, Comp>(A, n, 1);
+// }
